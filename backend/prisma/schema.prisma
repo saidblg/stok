@@ -1,0 +1,138 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String
+  name               String
+  role               Role     @default(USER)
+  dashboardCardOrder String[] @default([])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Product {
+  id                String            @id @default(cuid())
+  name              String
+  image             String?
+  purchasePrice     Decimal           @db.Decimal(10, 2)
+  salePrice         Decimal           @db.Decimal(10, 2)
+  stock             Int               @default(0)
+  lowStockThreshold Int               @default(10)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  transactionItems  TransactionItem[]
+}
+
+model Customer {
+  id           String                @id @default(cuid())
+  name         String?
+  phone        String?
+  email        String?
+  address      String?
+  notes        String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  transactions CustomerTransaction[]
+}
+
+model Supplier {
+  id           String                @id @default(cuid())
+  name         String?
+  phone        String?
+  email        String?
+  address      String?
+  notes        String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  transactions CustomerTransaction[] @relation("SupplierTransactions")
+}
+
+model CustomerTransaction {
+  id          String            @id @default(cuid())
+  customerId  String?
+  customer    Customer?         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  supplierId  String?
+  supplier    Supplier?         @relation("SupplierTransactions", fields: [supplierId], references: [id], onDelete: Cascade)
+  productId   String?
+  quantity    Int?
+  type        TransactionType
+  paymentMethod PaymentMethod?
+  grossAmount Decimal?          @db.Decimal(10, 2)
+  amount      Decimal           @db.Decimal(10, 2)
+  description String?
+  date        DateTime          @default(now())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  items       TransactionItem[] @relation("TransactionItems")
+
+  @@index([customerId])
+  @@index([supplierId])
+  @@index([productId])
+  @@index([date])
+}
+
+model TransactionItem {
+  id            String              @id @default(cuid())
+  transactionId String
+  transaction   CustomerTransaction @relation("TransactionItems", fields: [transactionId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product             @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity      Int
+  unitPrice     Decimal             @db.Decimal(10, 2)
+  subtotal      Decimal             @db.Decimal(10, 2)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([transactionId])
+  @@index([productId])
+}
+
+model Invoice {
+  id        String      @id @default(cuid())
+  type      InvoiceType
+  amount    Decimal     @db.Decimal(10, 2)
+  vatRate   VatRate
+  note      String?
+  date      DateTime
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([date])
+}
+
+enum TransactionType {
+  INCOME   // Tahsilat (müşteriden ödeme alındı)
+  EXPENSE  // Satış (müşteriye satış yapıldı, stok azalır)
+  PURCHASE // Mal Alışı (tedarikçiden alım, stok artar)
+  PAYMENT  // Tedarikçiye ödeme (borç azalır)
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+
+enum InvoiceType {
+  INCOMING
+  OUTGOING
+}
+
+enum VatRate {
+  VAT_1
+  VAT_10
+}
