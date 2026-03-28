@@ -16,8 +16,10 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { HealthController } from './health.controller';
 
 @Module({
+  controllers: [HealthController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

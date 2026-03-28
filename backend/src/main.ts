@@ -10,9 +10,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
+  const corsOrigin = configService.get<string>('CORS_ORIGIN');
 
   app.enableCors({
-    origin: configService.get<string>('CORS_ORIGIN') || 'http://localhost:5173',
+    origin: corsOrigin
+      ? corsOrigin.split(',').map((origin) => origin.trim())
+      : true,
     credentials: true,
   });
 
@@ -69,11 +72,12 @@ async function bootstrap() {
     },
   });
 
-  const port = configService.get<number>('PORT') || 3000;
+  const port = Number(process.env.PORT || configService.get<number>('PORT') || 3000);
+  const baseUrl = configService.get<string>('BASE_URL') || `http://0.0.0.0:${port}`;
   await app.listen(port);
 
-  console.log(`🚀 Server is running on: http://localhost:${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api-docs`);
+  console.log(`🚀 Server is running on: ${baseUrl}`);
+  console.log(`📚 API Documentation: ${baseUrl}/api-docs`);
 }
 
 bootstrap();
