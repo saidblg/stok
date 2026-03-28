@@ -155,7 +155,7 @@ cp .env.example .env
 
 3. Configure environment variables:
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=https://stok-2utr.onrender.com
 ```
 
 ## Development
@@ -165,7 +165,7 @@ Start the development server:
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `https://app.example.com`
 
 ## Build
 

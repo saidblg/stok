@@ -29,7 +29,7 @@ cp .env.example .env
 
 Edit `.env` if needed:
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=https://stok-2utr.onrender.com
 ```
 
 ### 4. Start Development Server
@@ -37,7 +37,7 @@ VITE_API_URL=http://localhost:3000
 npm run dev
 ```
 
-Application will be available at: **http://localhost:5173**
+Application will be available at: **https://app.example.com**
 
 ## What You Get
 
@@ -210,7 +210,7 @@ npm run build
 ```
 
 ### Backend Connection Error
-- Ensure backend is running on http://localhost:3000
+- Ensure backend is running on https://stok-2utr.onrender.com
 - Check CORS is enabled on backend
 - Verify .env file has correct VITE_API_URL
 

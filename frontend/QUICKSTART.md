@@ -4,7 +4,7 @@
 
 - Node.js 18 or higher
 - npm or yarn
-- Backend API running (default: http://localhost:3000)
+- Backend API running (default: https://stok-2utr.onrender.com)
 
 ## Installation
 
@@ -18,9 +18,9 @@
    cp .env.example .env
    ```
 
-3. **Configure API URL** (optional, defaults to http://localhost:3000):
+3. **Configure API URL** (optional, defaults to https://stok-2utr.onrender.com):
    ```env
-   VITE_API_URL=http://localhost:3000
+   VITE_API_URL=https://stok-2utr.onrender.com
    ```
 
 ## Running the Application
@@ -30,7 +30,7 @@
 npm run dev
 ```
 
-The application will start at `http://localhost:5173`
+The application will start at `https://app.example.com`
 
 ### Production Build
 ```bash
