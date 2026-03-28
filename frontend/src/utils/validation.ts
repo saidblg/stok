@@ -10,7 +10,7 @@ export const loginSchema = z.object({
 
 export const productSchema = z.object({
   name: z.string().min(1, 'Ürün adı gereklidir'),
-  productType: z.enum(['KOLI', 'ADET']).optional().default('ADET'),
+  productType: z.enum(['KOLI', 'ADET']).optional().default('KOLI'),
   purchasePrice: z
     .number({ invalid_type_error: 'Alış fiyatı sayı olmalıdır' })
     .min(0, 'Alış fiyatı 0 veya daha büyük olmalıdır'),

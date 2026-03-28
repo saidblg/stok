@@ -24,7 +24,7 @@ const ProductForm = () => {
     resolver: zodResolver(productSchema),
     defaultValues: {
       lowStockThreshold: 10,
-      productType: ProductType.ADET,
+      productType: ProductType.KOLI,
     },
   });
 

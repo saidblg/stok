@@ -41,7 +41,7 @@ export class CreateProductDto {
   @ApiProperty({
     enum: ProductType,
     required: false,
-    default: ProductType.ADET,
+    default: ProductType.KOLI,
     description: 'Ürün tipi (KOLI veya ADET)',
   })
   @IsOptional()

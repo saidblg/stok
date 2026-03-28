@@ -28,7 +28,7 @@ enum Role {
 model Product {
   id                String            @id @default(cuid())
   name              String
-  productType       ProductType       @default(ADET)
+  productType       ProductType       @default(KOLI)
   image             String?
   purchasePrice     Decimal           @db.Decimal(10, 2)
   salePrice         Decimal           @db.Decimal(10, 2)
