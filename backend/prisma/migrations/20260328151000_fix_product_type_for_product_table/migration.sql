@@ -1,4 +1,4 @@
--- Idempotent fix for partially applied production state
+-- Fix for environments where 20260328143000 was resolved but column was not created
 DO $$
 BEGIN
   IF NOT EXISTS (
