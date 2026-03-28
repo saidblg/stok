@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class ProductResponseDto {
@@ -23,6 +24,9 @@ export class ProductResponseDto {
   @ApiProperty({ example: 10 })
   lowStockThreshold: number;
 
+  @ApiProperty({ enum: ProductType, example: ProductType.KOLI })
+  productType: ProductType;
+
   @ApiProperty({ example: false })
   isLowStock: boolean;
 
@@ -40,6 +44,7 @@ export class ProductResponseDto {
     this.salePrice = product.salePrice;
     this.stock = product.stock;
     this.lowStockThreshold = product.lowStockThreshold;
+    this.productType = product.productType;
     this.isLowStock = product.stock <= product.lowStockThreshold;
     this.createdAt = product.createdAt;
     this.updatedAt = product.updatedAt;

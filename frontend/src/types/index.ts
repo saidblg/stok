@@ -25,6 +25,11 @@ export enum VatRate {
   VAT_10 = 'VAT_10',
 }
 
+export enum ProductType {
+  KOLI = 'KOLI',
+  ADET = 'ADET',
+}
+
 export interface User {
   id: string;
   email: string;
@@ -38,6 +43,7 @@ export interface Product {
   id: string;
   name: string;
   image: string | null;
+  productType: ProductType;
   purchasePrice: number;
   salePrice: number;
   stock: number;
@@ -211,6 +217,7 @@ export interface AuthResponse {
 
 export interface CreateProductData {
   name: string;
+  productType?: ProductType;
   purchasePrice: number;
   salePrice: number;
   stock: number;
@@ -219,6 +226,7 @@ export interface CreateProductData {
 
 export interface UpdateProductData {
   name?: string;
+  productType?: ProductType;
   purchasePrice?: number;
   salePrice?: number;
   stock?: number;

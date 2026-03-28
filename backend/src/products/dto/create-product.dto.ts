@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsInt, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsInt, Min, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ProductType } from '@prisma/client';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Laptop' })
@@ -36,4 +37,14 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   image?: string;
+
+  @ApiProperty({
+    enum: ProductType,
+    required: false,
+    default: ProductType.ADET,
+    description: 'Ürün tipi (KOLI veya ADET)',
+  })
+  @IsOptional()
+  @IsEnum(ProductType, { message: 'Geçerli bir ürün tipi seçiniz' })
+  productType?: ProductType;
 }

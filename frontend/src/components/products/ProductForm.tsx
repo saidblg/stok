@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema } from '../../utils/validation';
-import { CreateProductData } from '../../types';
+import { CreateProductData, ProductType } from '../../types';
 import { useCreateProduct, useUploadProductImage } from '../../hooks/useProducts';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -24,6 +24,7 @@ const ProductForm = () => {
     resolver: zodResolver(productSchema),
     defaultValues: {
       lowStockThreshold: 10,
+      productType: ProductType.ADET,
     },
   });
 
@@ -123,6 +124,20 @@ const ProductForm = () => {
               error={errors.name?.message}
               {...register('name')}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ürün Tipi</label>
+              <select
+                {...register('productType')}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={ProductType.ADET}>Adet</option>
+                <option value={ProductType.KOLI}>Koli</option>
+              </select>
+              {errors.productType && (
+                <p className="mt-1 text-sm text-red-600">{errors.productType.message}</p>
+              )}
+            </div>
 
             <Input
               label="Alış Fiyatı"

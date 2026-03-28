@@ -28,6 +28,7 @@ enum Role {
 model Product {
   id                String            @id @default(cuid())
   name              String
+  productType       ProductType       @default(ADET)
   image             String?
   purchasePrice     Decimal           @db.Decimal(10, 2)
   salePrice         Decimal           @db.Decimal(10, 2)
@@ -135,4 +136,9 @@ enum InvoiceType {
 enum VatRate {
   VAT_1
   VAT_10
+}
+
+enum ProductType {
+  KOLI
+  ADET
 }
