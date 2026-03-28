@@ -1,4 +1,5 @@
 import { Menu, LogOut, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import Badge from '../ui/Badge';
 
@@ -19,8 +20,9 @@ const Header = ({ onMenuClick }: HeaderProps) => {
       </button>
 
       <div className="flex-1 lg:flex-none">
-        <h1 className="hidden md:block text-lg font-bold text-gray-900">
-        </h1>
+        <Link to="/dashboard" className="hidden md:inline-flex items-center" aria-label="Ana Sayfa">
+          <img src="/logo.png" alt="Karabacak Gıda" className="h-12 w-auto rounded-md" />
+        </Link>
       </div>
 
       <div className="flex items-center space-x-4">

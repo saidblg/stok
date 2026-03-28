@@ -25,10 +25,12 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 px-4">
       <Card className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">KARABACAK GIDA</h2>
-          <h1 className="text-2xl font-medium text-gray-900 mb-2">
-            Stok ve Müşteri Takip
-          </h1>
+          <img
+            src="/logo.png"
+            alt="Karabacak Gıda"
+            className="mx-auto mb-4 h-28 w-auto rounded-md"
+          />
+          <p className="text-sm text-gray-600">Hesabınıza giriş yapın</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
