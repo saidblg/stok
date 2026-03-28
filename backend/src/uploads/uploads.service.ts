@@ -17,12 +17,14 @@ export class UploadsService {
       throw new BadRequestException('Dosya boyutu 5MB\'dan küçük olmalıdır');
     }
 
-    const url = await this.supabaseStorage.uploadFile(file, 'product-images');
+    const bucket = process.env.SUPABASE_BUCKET || 'product-images';
+    const url = await this.supabaseStorage.uploadFile(file, bucket);
 
     return { url };
   }
 
   async deleteProductImage(imageUrl: string): Promise<void> {
-    await this.supabaseStorage.deleteFile(imageUrl, 'product-images');
+    const bucket = process.env.SUPABASE_BUCKET || 'product-images';
+    await this.supabaseStorage.deleteFile(imageUrl, bucket);
   }
 }
