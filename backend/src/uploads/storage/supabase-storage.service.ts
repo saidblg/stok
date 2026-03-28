@@ -95,7 +95,7 @@ export class SupabaseStorageService {
 
     fs.writeFileSync(filePath, file.buffer);
 
-    const baseUrl = this.configService.get<string>('BASE_URL') || 'http://localhost:3000';
+    const baseUrl = this.resolveBaseUrl();
     return `${baseUrl}/uploads/${fileName}`;
   }
 
@@ -151,7 +151,7 @@ export class SupabaseStorageService {
     const targetBucket = this.resolveBucketName(bucket);
 
     if (this.useLocal) {
-      const baseUrl = this.configService.get<string>('BASE_URL') || 'http://localhost:3000';
+      const baseUrl = this.resolveBaseUrl();
       return `${baseUrl}/uploads/${path.basename(filePath)}`;
     }
 
@@ -217,5 +217,20 @@ export class SupabaseStorageService {
     return new InternalServerErrorException(
       `Dosya silinemedi. Bucket: "${bucket}". Supabase hata mesajı: ${message}`,
     );
+  }
+
+  private resolveBaseUrl(): string {
+    const configured = this.configService.get<string>('BASE_URL')?.trim();
+    if (configured) {
+      return configured;
+    }
+
+    const renderExternalUrl = process.env.RENDER_EXTERNAL_URL?.trim();
+    if (renderExternalUrl) {
+      return renderExternalUrl;
+    }
+
+    const port = process.env.PORT || this.configService.get<string>('PORT') || '3000';
+    return `http://0.0.0.0:${port}`;
   }
 }
