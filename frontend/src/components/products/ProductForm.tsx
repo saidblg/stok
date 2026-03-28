@@ -3,15 +3,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema } from '../../utils/validation';
 import { CreateProductData } from '../../types';
-import { useCreateProduct } from '../../hooks/useProducts';
+import { useCreateProduct, useUploadProductImage } from '../../hooks/useProducts';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
-import { ChevronUp, Plus } from 'lucide-react';
+import { ChevronUp, Image as ImageIcon, Plus, Upload } from 'lucide-react';
 
 const ProductForm = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const createProduct = useCreateProduct();
+  const uploadImage = useUploadProductImage();
   const {
     register,
     handleSubmit,
@@ -24,9 +27,28 @@ const ProductForm = () => {
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (data: CreateProductData) => {
-    await createProduct.mutateAsync(data);
+    const createdProduct = await createProduct.mutateAsync(data);
+
+    if (selectedFile) {
+      await uploadImage.mutateAsync({ id: createdProduct.id, file: selectedFile });
+    }
+
     reset();
+    setSelectedFile(null);
+    setImagePreview(null);
     setIsExpanded(false);
   };
 
@@ -56,6 +78,44 @@ const ProductForm = () => {
 
       {isExpanded && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ürün Görseli (Opsiyonel)
+            </label>
+            <div className="flex items-center space-x-4">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Ürün görseli"
+                  className="w-24 h-24 object-cover rounded-lg border border-gray-300"
+                />
+              ) : (
+                <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-300">
+                  <ImageIcon size={28} className="text-gray-400" />
+                </div>
+              )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="create-product-image"
+                />
+                <label
+                  htmlFor="create-product-image"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 cursor-pointer"
+                >
+                  <Upload size={16} className="mr-1" />
+                  Görsel Yükle
+                </label>
+                <p className="text-xs text-gray-500 mt-2">
+                  PNG, JPG veya WEBP (Max. 5MB)
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Ürün Adı"
@@ -99,7 +159,7 @@ const ProductForm = () => {
             />
           </div>
 
-          <Button type="submit" loading={createProduct.isPending}>
+          <Button type="submit" loading={createProduct.isPending || uploadImage.isPending}>
             <Plus size={18} className="mr-1" />
             Ürün Ekle
           </Button>
