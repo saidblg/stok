@@ -115,13 +115,7 @@ const ProductEditModal = ({ product, isOpen, onClose }: ProductEditModalProps) =
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Ürün Adı"
-            error={errors.name?.message}
-            {...register('name')}
-          />
-
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Ürün Tipi</label>
             <select
               {...register('productType')}
@@ -134,6 +128,12 @@ const ProductEditModal = ({ product, isOpen, onClose }: ProductEditModalProps) =
               <p className="mt-1 text-sm text-red-600">{errors.productType.message}</p>
             )}
           </div>
+
+          <Input
+            label="Ürün Adı"
+            error={errors.name?.message}
+            {...register('name')}
+          />
 
           <Input
             label="Alış Fiyatı"
