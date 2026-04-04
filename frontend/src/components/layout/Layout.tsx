@@ -1,6 +1,7 @@
 import { useState, ReactNode } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { AiChat } from '../AiChat';
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,6 +21,9 @@ const Layout = ({ children }: LayoutProps) => {
           {children}
         </main>
       </div>
+
+      {/* AI Chat Floating Button */}
+      <AiChat />
     </div>
   );
 };

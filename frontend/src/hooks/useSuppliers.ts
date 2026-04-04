@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { suppliersApi } from '../api/suppliers.api';
 import { CreateSupplierData, UpdateSupplierData, SupplierQueryParams } from '../types';
 import toast from 'react-hot-toast';
@@ -7,6 +7,7 @@ export const useSuppliers = (params?: SupplierQueryParams) => {
   return useQuery({
     queryKey: ['suppliers', params],
     queryFn: () => suppliersApi.getSuppliers(params),
+    placeholderData: keepPreviousData,
   });
 };
 

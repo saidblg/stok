@@ -9,10 +9,38 @@ import {
   PaginatedResponse,
 } from '../types';
 
+type SupplierListResponse = {
+  data: Supplier[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+const normalizePaginatedResponse = (
+  payload: SupplierListResponse,
+): PaginatedResponse<Supplier> => {
+  if (payload.meta) {
+    return {
+      data: payload.data,
+      total: payload.meta.total,
+      page: payload.meta.page,
+      limit: payload.meta.limit,
+      totalPages: payload.meta.totalPages,
+    };
+  }
+
+  return payload as unknown as PaginatedResponse<Supplier>;
+};
+
 export const suppliersApi = {
   getSuppliers: async (params?: SupplierQueryParams): Promise<PaginatedResponse<Supplier>> => {
-    const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<Supplier> }>('/suppliers', { params });
-    return response.data.data;
+    const response = await apiClient.get<{ success: boolean; data: SupplierListResponse }>('/suppliers', {
+      params,
+    });
+    return normalizePaginatedResponse(response.data.data);
   },
 
   getSupplier: async (id: string): Promise<SupplierDetail> => {

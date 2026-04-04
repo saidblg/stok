@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customersApi } from '../api/customers.api';
 import {
   CreateCustomerData,
@@ -11,6 +11,7 @@ export const useCustomers = (params?: CustomerQueryParams) => {
   return useQuery({
     queryKey: ['customers', params],
     queryFn: () => customersApi.getCustomers(params),
+    placeholderData: keepPreviousData,
   });
 };
 

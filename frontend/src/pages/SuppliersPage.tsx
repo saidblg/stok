@@ -5,16 +5,18 @@ import SupplierForm from '../components/suppliers/SupplierForm';
 import SupplierList from '../components/suppliers/SupplierList';
 import SupplierDetailModal from '../components/suppliers/SupplierDetailModal';
 import Loading from '../components/ui/Loading';
+import Pagination from '../components/ui/Pagination';
 import { Search, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
+const PAGE_SIZE = 10;
+
 const SuppliersPage = () => {
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
-
-  const { data, isLoading } = useSuppliers({ search: debouncedSearch });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,6 +25,24 @@ const SuppliersPage = () => {
 
     return () => clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data, isLoading } = useSuppliers({
+    search: debouncedSearch,
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const totalPages = data?.totalPages || 1;
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const handleSupplierClick = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
@@ -83,6 +103,14 @@ const SuppliersPage = () => {
         <SupplierList
           suppliers={data?.data || []}
           onSupplierClick={handleSupplierClick}
+        />
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalItems={data?.total || 0}
+          itemsPerPage={PAGE_SIZE}
         />
       </div>
 

@@ -12,6 +12,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { AiChatModule } from './ai-chat/ai-chat.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { diskStorage } from 'multer';
@@ -57,6 +58,7 @@ import { HealthController } from './health.controller';
     TransactionsModule,
     DashboardModule,
     InvoicesModule,
+    AiChatModule,
   ],
   providers: [
     {

@@ -6,9 +6,13 @@ import CustomerList from '../components/customers/CustomerList';
 import CustomerDetailModal from '../components/customers/CustomerDetailModal';
 import Loading from '../components/ui/Loading';
 import Input from '../components/ui/Input';
+import Pagination from '../components/ui/Pagination';
 import { Search, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
+const PAGE_SIZE = 10;
+
 const CustomersPage = () => {
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -23,7 +27,23 @@ const CustomersPage = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data, isLoading } = useCustomers({ search: debouncedSearch });
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data, isLoading } = useCustomers({
+    search: debouncedSearch,
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const totalPages = data?.totalPages || 1;
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const handleCustomerClick = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -87,6 +107,14 @@ const CustomersPage = () => {
         <CustomerList
           customers={data?.data || []}
           onCustomerClick={handleCustomerClick}
+        />
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalItems={data?.total || 0}
+          itemsPerPage={PAGE_SIZE}
         />
       </div>
 

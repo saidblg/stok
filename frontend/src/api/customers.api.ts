@@ -8,10 +8,38 @@ import {
   PaginatedResponse,
 } from '../types';
 
+type CustomerListResponse = {
+  data: Customer[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+const normalizePaginatedResponse = (
+  payload: CustomerListResponse,
+): PaginatedResponse<Customer> => {
+  if (payload.meta) {
+    return {
+      data: payload.data,
+      total: payload.meta.total,
+      page: payload.meta.page,
+      limit: payload.meta.limit,
+      totalPages: payload.meta.totalPages,
+    };
+  }
+
+  return payload as unknown as PaginatedResponse<Customer>;
+};
+
 export const customersApi = {
   getCustomers: async (params?: CustomerQueryParams): Promise<PaginatedResponse<Customer>> => {
-    const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<Customer> }>('/customers', { params });
-    return response.data.data;
+    const response = await apiClient.get<{ success: boolean; data: CustomerListResponse }>('/customers', {
+      params,
+    });
+    return normalizePaginatedResponse(response.data.data);
   },
 
   getCustomer: async (id: string): Promise<CustomerDetail> => {
