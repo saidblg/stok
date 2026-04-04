@@ -13,6 +13,9 @@ export class UserResponseDto {
   @ApiProperty({ enum: ['ADMIN', 'USER'] })
   role: string;
 
+  @ApiProperty({ enum: ['light', 'dark'] })
+  themePreference: string;
+
   @ApiProperty()
   createdAt: Date;
 

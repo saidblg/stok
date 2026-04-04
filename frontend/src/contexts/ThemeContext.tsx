@@ -4,10 +4,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
+import toast from 'react-hot-toast';
+import { dashboardApi } from '../api/dashboard.api';
+import { useAuth } from './AuthContext';
+import { ThemePreference } from '../types';
 
-export type Theme = 'light' | 'dark';
+export type Theme = ThemePreference;
 
 interface ThemeContextValue {
   theme: Theme;
@@ -30,6 +35,8 @@ const getInitialTheme = (): Theme => {
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const { user, loading, isAuthenticated, setThemePreference } = useAuth();
+  const previousSyncedThemeRef = useRef<Theme>(theme);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -40,13 +47,53 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (isAuthenticated && user?.themePreference) {
+      setTheme(user.themePreference);
+      previousSyncedThemeRef.current = user.themePreference;
+      return;
+    }
+
+    const storedTheme = getInitialTheme();
+    setTheme(storedTheme);
+    previousSyncedThemeRef.current = storedTheme;
+  }, [loading, isAuthenticated, user?.themePreference]);
+
   const value = useMemo(
     () => ({
       theme,
       setTheme,
-      toggleTheme: () => setTheme((current) => (current === 'dark' ? 'light' : 'dark')),
+      toggleTheme: async () => {
+        const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+        const previousTheme = theme;
+
+        setTheme(nextTheme);
+        previousSyncedThemeRef.current = nextTheme;
+
+        if (!isAuthenticated) {
+          return;
+        }
+
+        setThemePreference(nextTheme);
+
+        try {
+          const response = await dashboardApi.updateThemePreference(nextTheme);
+          previousSyncedThemeRef.current = response.themePreference;
+          setTheme(response.themePreference);
+          setThemePreference(response.themePreference);
+        } catch (error) {
+          setTheme(previousTheme);
+          setThemePreference(previousTheme);
+          previousSyncedThemeRef.current = previousTheme;
+          toast.error('Tema tercihi kaydedilemedi');
+        }
+      },
     }),
-    [theme],
+    [theme, isAuthenticated, setThemePreference],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

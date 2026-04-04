@@ -3,6 +3,8 @@ export enum Role {
   USER = 'USER',
 }
 
+export type ThemePreference = 'light' | 'dark';
+
 export enum TransactionType {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE',
@@ -35,6 +37,7 @@ export interface User {
   email: string;
   name: string;
   role: Role;
+  themePreference: ThemePreference;
   createdAt: string;
   updatedAt: string;
 }
@@ -157,6 +160,10 @@ export type DashboardCardKey =
 
 export interface DashboardCardOrderResponse {
   dashboardCardOrder: DashboardCardKey[];
+}
+
+export interface ThemePreferenceResponse {
+  themePreference: ThemePreference;
 }
 
 export interface Invoice {

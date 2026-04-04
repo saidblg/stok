@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, LoginCredentials } from '../types';
+import { User, LoginCredentials, ThemePreference } from '../types';
 import { authApi } from '../api/auth.api';
 import toast from 'react-hot-toast';
 
@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  setThemePreference: (themePreference: ThemePreference) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,6 +58,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     navigate('/login');
   };
 
+  const setThemePreference = (themePreference: ThemePreference) => {
+    setUser((currentUser) =>
+      currentUser ? { ...currentUser, themePreference } : currentUser
+    );
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -65,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         logout,
         isAuthenticated: !!user,
+        setThemePreference,
       }}
     >
       {children}

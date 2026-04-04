@@ -12,6 +12,9 @@ export class UserPayloadDto {
 
   @ApiProperty({ enum: ['ADMIN', 'USER'] })
   role: string;
+
+  @ApiProperty({ enum: ['light', 'dark'] })
+  themePreference: string;
 }
 
 export class AuthResponseDto {

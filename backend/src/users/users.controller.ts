@@ -9,6 +9,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser, CurrentUserType } from '../auth/decorators/current-user.decorator';
 import { UpdateDashboardCardOrderDto } from './dto/update-dashboard-card-order.dto';
 import { DashboardCardOrderResponseDto } from './dto/dashboard-card-order-response.dto';
+import { ThemePreferenceResponseDto } from './dto/theme-preference-response.dto';
+import { UpdateThemePreferenceDto } from './dto/update-theme-preference.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -53,6 +55,26 @@ export class UsersController {
     return this.usersService.updateDashboardCardOrder(
       user.id,
       updateDashboardCardOrderDto.dashboardCardOrder,
+    );
+  }
+
+  @Get('me/theme-preference')
+  @ApiOperation({ summary: 'Mevcut kullanıcının tema tercihini getir' })
+  @ApiResponse({ status: 200, description: 'Tema tercihi döndürüldü', type: ThemePreferenceResponseDto })
+  async getThemePreference(@CurrentUser() user: CurrentUserType) {
+    return this.usersService.getThemePreference(user.id);
+  }
+
+  @Post('me/theme-preference')
+  @ApiOperation({ summary: 'Mevcut kullanıcının tema tercihini güncelle' })
+  @ApiResponse({ status: 200, description: 'Tema tercihi güncellendi', type: ThemePreferenceResponseDto })
+  async updateThemePreference(
+    @CurrentUser() user: CurrentUserType,
+    @Body() updateThemePreferenceDto: UpdateThemePreferenceDto,
+  ) {
+    return this.usersService.updateThemePreference(
+      user.id,
+      updateThemePreferenceDto.themePreference,
     );
   }
 

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { DASHBOARD_CARD_KEYS } from './dto/update-dashboard-card-order.dto';
+import { THEME_PREFERENCES } from './dto/update-theme-preference.dto';
 
 @Injectable()
 export class UsersService {
@@ -39,6 +40,7 @@ export class UsersService {
         email: true,
         name: true,
         role: true,
+        themePreference: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -56,6 +58,7 @@ export class UsersService {
         email: true,
         name: true,
         role: true,
+        themePreference: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -117,6 +120,39 @@ export class UsersService {
     };
   }
 
+  async getThemePreference(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, themePreference: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Kullanıcı bulunamadı');
+    }
+
+    return {
+      themePreference: this.normalizeThemePreference(user.themePreference),
+    };
+  }
+
+  async updateThemePreference(userId: string, themePreference: 'light' | 'dark') {
+    const normalizedTheme = this.normalizeThemePreference(themePreference);
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        themePreference: normalizedTheme,
+      },
+      select: {
+        themePreference: true,
+      },
+    });
+
+    return {
+      themePreference: this.normalizeThemePreference(user.themePreference),
+    };
+  }
+
   private normalizeDashboardCardOrder(order?: string[]): string[] {
     const allowedKeys = [...DASHBOARD_CARD_KEYS];
 
@@ -133,5 +169,11 @@ export class UsersService {
     }
 
     return uniqueValid;
+  }
+
+  private normalizeThemePreference(themePreference?: string): 'light' | 'dark' {
+    return THEME_PREFERENCES.includes(themePreference as 'light' | 'dark')
+      ? (themePreference as 'light' | 'dark')
+      : 'light';
   }
 }

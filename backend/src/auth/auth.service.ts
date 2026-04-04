@@ -45,6 +45,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        themePreference: user.themePreference as 'light' | 'dark',
       },
     };
   }
@@ -57,7 +58,9 @@ export class AuthService {
         email: true,
         name: true,
         role: true,
+        themePreference: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 

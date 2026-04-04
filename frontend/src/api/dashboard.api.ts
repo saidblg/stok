@@ -6,6 +6,8 @@ import {
   Product,
   DashboardCardOrderResponse,
   DashboardCardKey,
+  ThemePreference,
+  ThemePreferenceResponse,
 } from '../types';
 
 export const dashboardApi = {
@@ -41,6 +43,21 @@ export const dashboardApi = {
     const response = await apiClient.post<{ success: boolean; data: DashboardCardOrderResponse }>(
       '/users/me/dashboard-card-order',
       { dashboardCardOrder },
+    );
+    return response.data.data;
+  },
+
+  getThemePreference: async (): Promise<ThemePreferenceResponse> => {
+    const response = await apiClient.get<{ success: boolean; data: ThemePreferenceResponse }>(
+      '/users/me/theme-preference',
+    );
+    return response.data.data;
+  },
+
+  updateThemePreference: async (themePreference: ThemePreference): Promise<ThemePreferenceResponse> => {
+    const response = await apiClient.post<{ success: boolean; data: ThemePreferenceResponse }>(
+      '/users/me/theme-preference',
+      { themePreference },
     );
     return response.data.data;
   },
