@@ -8,70 +8,61 @@ import { Mail, Lock } from 'lucide-react';
 import './LoginPage.css';
 
 /* ------------------------------------------------------------------ */
-/*  Floating Triangle Particle System                                  */
+/*  Particle Network Background                                        */
 /* ------------------------------------------------------------------ */
 
-interface Triangle {
+interface NetworkParticle {
   x: number;
   y: number;
-  size: number;
-  rotation: number;
-  rotationSpeed: number;
   vx: number;
   vy: number;
+  size: number;
   opacity: number;
-  color: string;
-  parallaxFactor: number;
 }
 
-function createTriangles(width: number, height: number, count: number): Triangle[] {
-  const colors = [
-    'rgba(30, 64, 175, 0.12)',
-    'rgba(30, 64, 175, 0.08)',
-    'rgba(19, 34, 56, 0.18)',
-    'rgba(59, 130, 246, 0.06)',
-    'rgba(148, 163, 184, 0.05)',
-  ];
-
+function createParticles(width: number, height: number, count: number): NetworkParticle[] {
   return Array.from({ length: count }, () => ({
     x: Math.random() * width,
     y: Math.random() * height,
-    size: 8 + Math.random() * 28,
-    rotation: Math.random() * Math.PI * 2,
-    rotationSpeed: (Math.random() - 0.5) * 0.008,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: (Math.random() - 0.5) * 0.3,
-    opacity: 0.15 + Math.random() * 0.35,
-    color: colors[Math.floor(Math.random() * colors.length)],
-    parallaxFactor: 0.02 + Math.random() * 0.05,
+    vx: (Math.random() - 0.5) * 0.42,
+    vy: (Math.random() - 0.5) * 0.42,
+    size: 1.2 + Math.random() * 2.4,
+    opacity: 0.35 + Math.random() * 0.45,
   }));
 }
 
-function drawTriangle(
+function drawParticle(
   ctx: CanvasRenderingContext2D,
-  t: Triangle,
-  mouseOffsetX: number,
-  mouseOffsetY: number
+  particle: NetworkParticle,
 ) {
-  const px = t.x + mouseOffsetX * t.parallaxFactor;
-  const py = t.y + mouseOffsetY * t.parallaxFactor;
+  ctx.save();
+  ctx.globalAlpha = particle.opacity;
+  ctx.fillStyle = 'rgba(191, 219, 254, 0.95)';
+  ctx.shadowColor = 'rgba(96, 165, 250, 0.5)';
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawConnection(
+  ctx: CanvasRenderingContext2D,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  distance: number,
+  maxDistance: number,
+) {
+  const alpha = (1 - distance / maxDistance) * 0.35;
 
   ctx.save();
-  ctx.translate(px, py);
-  ctx.rotate(t.rotation);
-  ctx.globalAlpha = t.opacity;
-
-  ctx.beginPath();
-  const h = t.size * 0.866;
-  ctx.moveTo(0, -h * 0.67);
-  ctx.lineTo(-t.size / 2, h * 0.33);
-  ctx.lineTo(t.size / 2, h * 0.33);
-  ctx.closePath();
-
-  ctx.strokeStyle = t.color;
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = 'rgba(96, 165, 250, 0.9)';
   ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
   ctx.stroke();
-
   ctx.restore();
 }
 
@@ -96,13 +87,20 @@ const LoginPage = () => {
 
   /* ---- particle canvas refs ---- */
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const trianglesRef = useRef<Triangle[]>([]);
-  const mouseRef = useRef({ x: 0, y: 0, smoothX: 0, smoothY: 0 });
+  const particlesRef = useRef<NetworkParticle[]>([]);
+  const mouseRef = useRef({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    smoothX: window.innerWidth / 2,
+    smoothY: window.innerHeight / 2,
+    active: false,
+  });
   const animFrameRef = useRef<number>(0);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    mouseRef.current.x = e.clientX - window.innerWidth / 2;
-    mouseRef.current.y = e.clientY - window.innerHeight / 2;
+    mouseRef.current.x = e.clientX;
+    mouseRef.current.y = e.clientY;
+    mouseRef.current.active = true;
   }, []);
 
   useEffect(() => {
@@ -119,36 +117,89 @@ const LoginPage = () => {
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      trianglesRef.current = createTriangles(window.innerWidth, window.innerHeight, 35);
+      const particleCount = window.innerWidth < 768 ? 36 : 72;
+      particlesRef.current = createParticles(window.innerWidth, window.innerHeight, particleCount);
+      mouseRef.current = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+        smoothX: window.innerWidth / 2,
+        smoothY: window.innerHeight / 2,
+        active: false,
+      };
+    };
+
+    const handleMouseLeave = () => {
+      mouseRef.current.active = false;
     };
 
     resize();
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
 
     const animate = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
+      const particleLinkDistance = window.innerWidth < 768 ? 112 : 152;
+      const mouseLinkDistance = window.innerWidth < 768 ? 132 : 184;
 
       ctx.clearRect(0, 0, w, h);
 
-      // smooth inertia
       const m = mouseRef.current;
-      m.smoothX += (m.x - m.smoothX) * 0.04;
-      m.smoothY += (m.y - m.smoothY) * 0.04;
+      const targetX = m.active ? m.x : w / 2;
+      const targetY = m.active ? m.y : h / 2;
+      m.smoothX += (targetX - m.smoothX) * 0.06;
+      m.smoothY += (targetY - m.smoothY) * 0.06;
 
-      for (const t of trianglesRef.current) {
-        t.x += t.vx;
-        t.y += t.vy;
-        t.rotation += t.rotationSpeed;
+      for (const particle of particlesRef.current) {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
 
-        // wrap around edges
-        if (t.x < -60) t.x = w + 60;
-        if (t.x > w + 60) t.x = -60;
-        if (t.y < -60) t.y = h + 60;
-        if (t.y > h + 60) t.y = -60;
+        if (particle.x < -20) particle.x = w + 20;
+        if (particle.x > w + 20) particle.x = -20;
+        if (particle.y < -20) particle.y = h + 20;
+        if (particle.y > h + 20) particle.y = -20;
+      }
 
-        drawTriangle(ctx, t, m.smoothX, m.smoothY);
+      for (let i = 0; i < particlesRef.current.length; i += 1) {
+        const particle = particlesRef.current[i];
+
+        for (let j = i + 1; j < particlesRef.current.length; j += 1) {
+          const nextParticle = particlesRef.current[j];
+          const dx = particle.x - nextParticle.x;
+          const dy = particle.y - nextParticle.y;
+          const distance = Math.hypot(dx, dy);
+
+          if (distance < particleLinkDistance) {
+            drawConnection(ctx, particle, nextParticle, distance, particleLinkDistance);
+          }
+        }
+
+        if (m.active) {
+          const mouseDistance = Math.hypot(particle.x - m.smoothX, particle.y - m.smoothY);
+          if (mouseDistance < mouseLinkDistance) {
+            drawConnection(
+              ctx,
+              particle,
+              { x: m.smoothX, y: m.smoothY },
+              mouseDistance,
+              mouseLinkDistance,
+            );
+          }
+        }
+
+        drawParticle(ctx, particle);
+      }
+
+      if (m.active) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(147, 197, 253, 0.18)';
+        ctx.shadowColor = 'rgba(96, 165, 250, 0.45)';
+        ctx.shadowBlur = 26;
+        ctx.beginPath();
+        ctx.arc(m.smoothX, m.smoothY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
       }
 
       animFrameRef.current = requestAnimationFrame(animate);
@@ -159,6 +210,7 @@ const LoginPage = () => {
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animFrameRef.current);
     };
   }, [handleMouseMove]);

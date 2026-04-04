@@ -1,6 +1,7 @@
-import { Menu, LogOut, User } from 'lucide-react';
+import { Menu, LogOut, MoonStar, SunMedium, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../hooks/useTheme';
 import Badge from '../ui/Badge';
 
 interface HeaderProps {
@@ -9,6 +10,8 @@ interface HeaderProps {
 
 const Header = ({ onMenuClick }: HeaderProps) => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
@@ -39,6 +42,22 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <Badge variant={user.role === 'ADMIN' ? 'success' : 'default'}>
                 {user.role === 'ADMIN' ? 'Admin' : 'Kullanıcı'}
               </Badge>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="theme-switch"
+                aria-label={isDark ? 'Açık moda geç' : 'Koyu moda geç'}
+                aria-pressed={isDark}
+                title={isDark ? 'Açık moda geç' : 'Koyu moda geç'}
+              >
+                <span className="theme-switch-track">
+                  <SunMedium size={14} className="theme-switch-icon theme-switch-icon-sun" />
+                  <MoonStar size={14} className="theme-switch-icon theme-switch-icon-moon" />
+                  <span className={`theme-switch-thumb ${isDark ? 'theme-switch-thumb-dark' : ''}`}>
+                    {isDark ? <MoonStar size={12} /> : <SunMedium size={12} />}
+                  </span>
+                </span>
+              </button>
             </div>
           </div>
         )}
