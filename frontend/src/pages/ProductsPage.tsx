@@ -6,9 +6,13 @@ import ProductList from '../components/products/ProductList';
 import ProductEditModal from '../components/products/ProductEditModal';
 import Loading from '../components/ui/Loading';
 import Input from '../components/ui/Input';
+import Pagination from '../components/ui/Pagination';
 import { Search } from 'lucide-react';
 
+const PAGE_SIZE = 12;
+
 const ProductsPage = () => {
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -22,7 +26,23 @@ const ProductsPage = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data, isLoading } = useProducts({ search: debouncedSearch });
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data, isLoading } = useProducts({
+    search: debouncedSearch,
+    page,
+    limit: PAGE_SIZE,
+  });
+
+  const totalPages = data?.totalPages || 1;
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
   const deleteProduct = useDeleteProduct();
 
   const handleEdit = (product: Product) => {
@@ -74,6 +94,14 @@ const ProductsPage = () => {
           products={data?.data || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
+        />
+
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalItems={data?.total || 0}
+          itemsPerPage={PAGE_SIZE}
         />
       </div>
 

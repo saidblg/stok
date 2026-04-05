@@ -22,17 +22,13 @@ type SupplierListResponse = {
 const normalizePaginatedResponse = (
   payload: SupplierListResponse,
 ): PaginatedResponse<Supplier> => {
-  if (payload.meta) {
-    return {
-      data: payload.data,
-      total: payload.meta.total,
-      page: payload.meta.page,
-      limit: payload.meta.limit,
-      totalPages: payload.meta.totalPages,
-    };
-  }
-
-  return payload as unknown as PaginatedResponse<Supplier>;
+  return {
+    data: payload.data || [],
+    total: payload.meta?.total || 0,
+    page: payload.meta?.page || 1,
+    limit: payload.meta?.limit || 10,
+    totalPages: payload.meta?.totalPages || 1,
+  };
 };
 
 export const suppliersApi = {

@@ -19,6 +19,24 @@ const Pagination = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const hasMountedRef = useRef(false);
 
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
+    if (totalPages <= 1) return;
+
+    const frameId = requestAnimationFrame(() => {
+      containerRef.current?.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [currentPage, totalPages]);
+
   if (totalPages <= 1) return null;
 
   const handlePageChange = (page: number) => {
@@ -30,22 +48,6 @@ const Pagination = ({
 
     onPageChange(nextPage);
   };
-
-  useEffect(() => {
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      return;
-    }
-
-    const frameId = requestAnimationFrame(() => {
-      containerRef.current?.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest',
-      });
-    });
-
-    return () => cancelAnimationFrame(frameId);
-  }, [currentPage]);
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];

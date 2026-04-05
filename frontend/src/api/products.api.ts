@@ -7,10 +7,32 @@ import {
   PaginatedResponse,
 } from '../types';
 
+type ProductListResponse = {
+  data: Product[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+const normalizePaginatedResponse = (
+  payload: ProductListResponse,
+): PaginatedResponse<Product> => {
+  return {
+    data: payload.data || [],
+    total: payload.meta?.total || 0,
+    page: payload.meta?.page || 1,
+    limit: payload.meta?.limit || 10,
+    totalPages: payload.meta?.totalPages || 1,
+  };
+};
+
 export const productsApi = {
   getProducts: async (params?: ProductQueryParams): Promise<PaginatedResponse<Product>> => {
-    const response = await apiClient.get<{ success: boolean; data: PaginatedResponse<Product> }>('/products', { params });
-    return response.data.data;
+    const response = await apiClient.get<{ success: boolean; data: ProductListResponse }>('/products', { params });
+    return normalizePaginatedResponse(response.data.data);
   },
 
   getProduct: async (id: string): Promise<Product> => {
