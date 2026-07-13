@@ -13,6 +13,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { AiChatModule } from './ai-chat/ai-chat.module';
+import { EkstreModule } from './ekstre/ekstre.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { diskStorage } from 'multer';
@@ -59,6 +60,7 @@ import { HealthController } from './health.controller';
     DashboardModule,
     InvoicesModule,
     AiChatModule,
+    EkstreModule,
   ],
   providers: [
     {

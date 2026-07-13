@@ -9,6 +9,7 @@ import CustomersPage from '../pages/CustomersPage';
 import SuppliersPage from '../pages/SuppliersPage';
 import InvoicesPage from '../pages/InvoicesPage';
 import TransactionsPage from '../pages/TransactionsPage';
+import EkstrePage from '../pages/EkstrePage';
 import Loading from '../components/ui/Loading';
 
 const AppRouter = () => {
@@ -86,6 +87,17 @@ const AppRouter = () => {
           <ProtectedRoute>
             <Layout>
               <InvoicesPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ekstre"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <EkstrePage />
             </Layout>
           </ProtectedRoute>
         }

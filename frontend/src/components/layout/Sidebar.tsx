@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Users, Truck, Receipt, X } from 'lucide-react';
+import { LayoutDashboard, Package, Users, Truck, Receipt, X, FileSpreadsheet } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     { path: '/customers', label: 'Müşteriler', icon: Users },
     { path: '/suppliers', label: 'Tedarikçiler', icon: Truck },
     { path: '/invoices', label: 'Faturalar', icon: Receipt },
+    { path: '/ekstre', label: 'Ekstre', icon: FileSpreadsheet },
   ];
 
   return (

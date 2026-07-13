@@ -320,3 +320,40 @@ export interface UpdateInvoiceData {
   note?: string;
   date?: string;
 }
+
+// Ekstre Types
+export enum EntityType {
+  CUSTOMER = 'customer',
+  SUPPLIER = 'supplier',
+}
+
+export interface EkstreParams {
+  entityType?: EntityType;
+  entityId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface EkstreRow {
+  id: string;
+  date: string;
+  description: string;
+  borc: number;
+  alacak: number;
+  bakiye: number;
+}
+
+export interface EkstreEntity {
+  id: string;
+  name: string;
+  type: EntityType;
+}
+
+export interface EkstreResponse {
+  entity: EkstreEntity;
+  startDate: string;
+  endDate: string;
+  openingBalance: number;
+  closingBalance: number;
+  rows: EkstreRow[];
+}
