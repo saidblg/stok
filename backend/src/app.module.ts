@@ -16,13 +16,13 @@ import { AiChatModule } from './ai-chat/ai-chat.module';
 import { EkstreModule } from './ekstre/ekstre.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { HealthModule } from './health/health.module';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { HealthController } from './health.controller';
 
 @Module({
-  controllers: [HealthController],
   imports: [
+    HealthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

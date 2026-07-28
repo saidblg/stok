@@ -1,0 +1,78 @@
+name: Keep Backend Alive
+
+# Render Free planı 15 dakika istek almayan servisi uyku moduna alır.
+# Bu workflow /health endpoint'ine düzenli ping atarak servisi ayakta tutar.
+
+on:
+  schedule:
+    # Her 10 dakikada bir. GitHub Actions cron'u yoğunlukta gecikebildiği için
+    # 15 dakikalık uyku limitine karşı 10 dakika seçildi.
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Actions sekmesinden elle tetiklemek için
+
+# Aynı anda birden fazla ping çalışmasın; gecikmeli tetiklenen eskileri iptal et.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping /health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping health endpoint
+        env:
+          # Repo Settings > Secrets and variables > Actions > Variables
+          # bölümünde HEALTH_URL değişkenini tanımla.
+          # Örn: https://senin-servisin.onrender.com/health
+          HEALTH_URL: ${{ vars.HEALTH_URL }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${HEALTH_URL}" ]; then
+            echo "::error::HEALTH_URL repository variable tanımlı değil."
+            echo "Settings > Secrets and variables > Actions > Variables > New repository variable"
+            exit 1
+          fi
+
+          # Uyuyan bir Render servisinin uyanması 30-60 saniye sürebilir,
+          # bu yüzden artan bekleme süreleriyle 5 kez deneriz.
+          MAX_ATTEMPTS=5
+          attempt=1
+
+          while [ "${attempt}" -le "${MAX_ATTEMPTS}" ]; do
+            echo "--- Deneme ${attempt}/${MAX_ATTEMPTS} ---"
+
+            response=$(curl --silent --show-error \
+                            --location \
+                            --max-time 90 \
+                            --write-out '\n%{http_code}' \
+                            --header 'User-Agent: github-actions-keep-alive' \
+                            "${HEALTH_URL}" || true)
+
+            body=$(printf '%s' "${response}" | sed '$d')
+            status=$(printf '%s' "${response}" | tail -n1)
+
+            echo "HTTP durum: ${status:-yok}"
+            echo "Gövde: ${body:-boş}"
+
+            if [ "${status}" = "200" ]; then
+              echo "✅ Backend ayakta."
+              exit 0
+            fi
+
+            attempt=$((attempt + 1))
+            if [ "${attempt}" -le "${MAX_ATTEMPTS}" ]; then
+              wait=$((attempt * 15))
+              echo "Başarısız, ${wait}sn sonra tekrar denenecek..."
+              sleep "${wait}"
+            fi
+          done
+
+          echo "::error::Health endpoint ${MAX_ATTEMPTS} denemede 200 dönmedi."
+          exit 1
